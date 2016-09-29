@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Side navigation with deltas listener</title>
+  <meta name="viewport" content="width=device-width">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/4.2.0/normalize.min.css">
+  <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+  <script src="https://unpkg.com/deltas"></script>
+
+  <style>
+    html {
+      box-sizing: border-box;
+    }
+
+    *, *:before, *:after {
+      box-sizing: inherit;
+      transition: all .5s linear;
+    }
+
+    body {
+      background-color: #cfd8dc;
+      color: #202020;
+      font-family: 'Roboto', Arial, sans-serif;
+      overflow-x: hidden;
+      perspective: 1000px;
+    }
+
+    button {
+      border: none;
+      background-color: transparent;
+      color: #ec5a62;
+      padding: 15px;
+      text-transform: uppercase;
+      position: absolute;
+      top: 0;
+    }
+
+    main button {
+      right: 0;
+    }
+
+    nav button {
+      left: 0;
+    }
+
+    h1 {
+      font-weight: 300;
+      border-bottom: solid 1px #ec5a62;
+      padding-bottom: 15px;
+    }
+
+    main {
+      min-height: 100vh;
+      padding: 30px;
+      transform-origin: top left;
+    }
+
+    main p {
+      line-height: 1.5;
+    }
+
+    nav {
+      backface-visibility: hidden;
+      background-color: #fefefe;
+      color: #a0a0a0;
+      box-shadow: 0 0 5px rgba(0, 0, 0, .25);
+      padding: 60px 30px 30px;
+      position: fixed;
+      top: 0;
+      right: 0;
+      width: 100vw;
+      height: 100vh;
+      text-align: right;
+      transform-origin: top right;
+      transform: rotateY(84deg);
+      z-index: 1;
+    }
+
+    a {
+      color: #ec5a62;
+      display: inline-block;
+      font-size: 2em;
+      margin-top: 20px;
+      text-decoration: none;
+    }
+
+    ul {
+      list-style: none;
+    }
+
+    body[data-nav-status="mid-open"] main {
+      transform: rotateY(-60deg);
+    }
+
+    body[data-nav-status="mid-open"] nav {
+      transform: rotateY(60deg);
+    }
+
+    body[data-nav-status="open"] main {
+      transform: rotateY(-90deg) translateX(-10%);
+    }
+
+    body[data-nav-status="open"] nav {
+      transform: rotateY(0);
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <button data-open>Menu</button>
+    <h1>Lorem ipsum dolor sit amet</h1>
+    <p><em>If you are seeing this in a phone turn your phone to the left to reveal the side navigation.</em></p>
+    <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit.</p>
+    <p>Provident inventore, quidem minus voluptas, placeat repellendus.</p>
+  </main>
+  <nav>
+    <button data-close>Close</button>
+    <ul>
+      <li><a href="">Home</a></li>
+      <li><a href="">About</a></li>
+      <li><a href="">Work</a></li>
+      <li><a href="">Careers</a></li>
+      <li><a href="">Contact</a></li>
+    </ul>
+  </nav>
+
+  <script>
+    window.addEventListener('load', _ => {
+      document.querySelector('[data-open]').addEventListener('click', e => {
+        document.body.dataset.navStatus = 'open';
+      });
+
+      document.querySelector('[data-close]').addEventListener('click', e => {
+        document.body.dataset.navStatus = 'close';
+      });
+
+      const menuListener = new deltas.Listener({
+        gamma: {
+          delta: 15,
+          action(delta) {
+            // close menu
+            if (delta > 0) {
+              document.body.dataset.navStatus = '';
+            }
+
+            // hint menu action
+            if (delta === -1 && !document.body.dataset.navStatus) {
+              document.body.dataset.navStatus = 'mid-open';
+            }
+
+            // open menu
+            if (delta < -1) {
+              document.body.dataset.navStatus = 'open';
+            }
+          }
+        }
+      });
+    });
+  </script>
+</body>
+</html>
